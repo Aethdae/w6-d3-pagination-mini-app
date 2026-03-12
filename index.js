@@ -21,8 +21,6 @@ async function getData(num) {
     return data;
   } catch (err) {
     console.error(err);
-  } finally {
-    output.className = "grid grid-cols-2 gap-2";
   }
 }
 
@@ -69,52 +67,47 @@ async function getAPICount() {
 }
 
 async function renderData(obj) {
+  const promiseArr = await Promise.all(
+    obj.results.map(async (obj) => {
+      const { name, homeworld, hair_color, mass, height } = obj;
+      const homeworldName = await getHomeworld(homeworld);
+      const paraClass = "text-md text-center";
+
+      const cardDiv = document.createElement("div");
+      cardDiv.className =
+        "flex flex-col bg-black text-white gap-2 justify-center p-2 rounded-2xl mt-2 mx-4";
+
+      const nameElement = document.createElement("h3");
+      nameElement.innerText = `Name: ${name}`;
+      nameElement.className =
+        "text-2xl text-center bg-gray-800 rounded-2xl outline-white outline-2 p-2";
+      cardDiv.appendChild(nameElement);
+
+      const massElement = document.createElement("p");
+      massElement.innerText = `Mass: ${mass}`;
+      massElement.className = paraClass;
+      cardDiv.appendChild(massElement);
+
+      const hairElement = document.createElement("p");
+      hairElement.innerText = `Hair color: ${hair_color}`;
+      hairElement.className = paraClass;
+      cardDiv.appendChild(hairElement);
+
+      const heightElement = document.createElement("p");
+      heightElement.innerText = `Height: ${height}cm`;
+      heightElement.className = paraClass;
+      cardDiv.appendChild(heightElement);
+
+      const homeworldNameElement = document.createElement("p");
+      homeworldNameElement.innerText = `Homeworld: ${homeworldName}`;
+      homeworldNameElement.className = paraClass;
+      cardDiv.appendChild(homeworldNameElement);
+      return cardDiv;
+    }),
+  );
   output.textContent = "";
-  obj.results.forEach(async (obj) => {
-    const { name } = obj,
-      { homeworld } = obj,
-      { hair_color } = obj,
-      { mass } = obj,
-      { height } = obj;
-    const homeworldName = await getHomeworld(homeworld);
-    const paraClass = "text-md text-center";
-
-    const cardDiv = document.createElement("div");
-    output.appendChild(cardDiv);
-    cardDiv.className =
-      "flex flex-col bg-black text-white gap-2 justify-center p-2 rounded-2xl mt-2 mx-4";
-
-    const nameElement = document.createElement("h3");
-    nameElement.innerText = `Name: ${name}`;
-    nameElement.className =
-      "text-2xl text-center bg-gray-800 rounded-2xl outline-white outline-2 p-2";
-    cardDiv.appendChild(nameElement);
-
-    const massElement = document.createElement("p");
-    massElement.innerText = `Mass: ${mass}`;
-    massElement.className = paraClass;
-    cardDiv.appendChild(massElement);
-
-    const hairElement = document.createElement("p");
-    hairElement.innerText = `Hair color: ${hair_color}`;
-    hairElement.className = paraClass;
-    cardDiv.appendChild(hairElement);
-
-    const heightElement = document.createElement("p");
-    heightElement.innerText = `Height: ${height}cm`;
-    heightElement.className = paraClass;
-    cardDiv.appendChild(heightElement);
-
-    const homeworldNameElement = document.createElement("p");
-    homeworldNameElement.innerText = `Homeworld: ${homeworldName}`;
-    homeworldNameElement.className = paraClass;
-    cardDiv.appendChild(homeworldNameElement);
-  });
-  return new Promise((resolve) => setTimeout(resolve, 1000));
-}
-
-async function pause(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  output.className = "grid grid-cols-2 gap-2";
+  output.append(...promiseArr);
 }
 
 async function main() {
